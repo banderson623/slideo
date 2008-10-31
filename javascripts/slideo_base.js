@@ -28,10 +28,10 @@ var time_code = new Array(  "00:00:00",
                             "00:23:21",
                             "00:27:12")
 
-for(i=0; i <= (time_code.length - 1); ++i){
-    console.log(i + ": " + time_code[i] + " total seconds: " + time_code_to_seconds(time_code[i]));
-    
-}
+// for(i=0; i <= (time_code.length - 1); ++i){
+//     console.log(i + ": " + time_code[i] + " total seconds: " + time_code_to_seconds(time_code[i]));
+//     
+// }
 
 function time_code_to_seconds(timecode_string){
     time_array = timecode_string.split(":").reverse();
@@ -44,11 +44,12 @@ function time_code_to_seconds(timecode_string){
     return seconds;
 }
 
-slideo = {
+Slideo = {
     internal_config: {
         time_in_seconds:0,
         current_slide: 0,
-        state: "uninitialized"
+        state: "uninitialized",
+        slides: []
     },
     
     user_config: {},
@@ -77,8 +78,23 @@ slideo = {
     
     displaySlide: function(number){
         
+    },
+    
+    setSlideTimingsFromURL: function(){
+        
+    },
+    
+    
+    setSlideTimingsFromArrayOfTimeCodes: function(time_code_array){
+        
     }
+    
 }
 
+SlideoSlide = {
+    timecode: "",
+    seconds: "",
+    slide_num: 0
+}
 
-var the_player = slideo.initialize();
+var the_player = Slideo.initialize();
