@@ -33,25 +33,14 @@ var time_code = new Array(  "00:00:00",
 //     
 // }
 
-function time_code_to_seconds(timecode_string){
-    time_array = timecode_string.split(":").reverse();
-    var seconds = 0;
-    seconds += parseInt(time_array[0]);
-    seconds += parseInt(time_array[1]) * 60;
-    if(time_array[2] != undefined) {
-        seconds += parseInt(time_array[2]) * 60;
-    }
-    return seconds;
-}
 
-Slideo = {
+Slideo = Class.create({
     internal_config: {
         time_in_seconds:0,
         current_slide: 0,
         state: "uninitialized",
-        slides: []
     },
-    
+    slides: [],
     user_config: {},
     
     set_state: function(new_state){
@@ -69,6 +58,7 @@ Slideo = {
         // this.slide_element = $(this.user_config.slide_div);
         this.set_state("initialized");
         this.log(this.user_config);
+        return this;
     },
     
     
@@ -81,20 +71,46 @@ Slideo = {
     },
     
     setSlideTimingsFromURL: function(){
-        
+        // Fill this with 
     },
     
     
     setSlideTimingsFromArrayOfTimeCodes: function(time_code_array){
+        for(i=0; i <= (time_code_array.length - 1); ++i){
+            var ss = new SlideoSlide;
+            ss.time_code = time_code_array[i];
+            ss.seconds = this.timeCodeToSeconds(time_code_array[i]);
+            ss.slide_number = i + 1; // levi starts at 1 on the files
+            this.slides.push(ss);
+            // console.log(i + ": " + time_code[i] + " total seconds: " + time_code_to_seconds(time_code[i]));
+            
+        }
+    },
+    
+    timeCodeToSeconds: function(timecode_string){
+        var time_array = timecode_string.split(":").reverse();
+        var seconds = 0;
+        seconds += parseInt(time_array[0]);
+        seconds += parseInt(time_array[1]) * 60;
+        if(time_array[2] != undefined) {
+            seconds += parseInt(time_array[2]) * 60;
+        }
+        return seconds;
+    }
+    
+    
+});
+
+SlideoSlide = Class.create({
+    timecode: "",
+    seconds: 0,
+    slide_number: 0,
+    
+    initialize: function(){
         
     }
     
-}
+});
 
-SlideoSlide = {
-    timecode: "",
-    seconds: "",
-    slide_num: 0
-}
-
-var the_player = Slideo.initialize();
+var the_player = new Slideo;
+the_player.setSlideTimingsFromArrayOfTimeCodes(time_code);
