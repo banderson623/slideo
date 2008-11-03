@@ -10,7 +10,7 @@
 	position:relative;
 }
 
-#slideo_video, 
+#slideo_video,
 #slideo_slides{
 	color:#555;
 	width: 480px;
@@ -31,4 +31,17 @@
 #slideo_slides img{
 	width: 480px;
 	height: 360px;	
+}
+
+#slideo_loading {
+    position:absolute;
+    top:5px;
+    left:5px;
+    background:#222;
+    color:#aaa;
+    opacity:0.75;
+    padding:4px 10px;
+}
+#slideo_loading * {
+    padding:0; margin:0;
 }

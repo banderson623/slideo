@@ -10,7 +10,13 @@
 	<link rel="stylesheet" href="support/master.css" type="text/css" media="screen, projection" charset="utf-8">
 	<link rel="stylesheet" href="support/print.css" type="text/css" media="print" charset="utf-8">
 	<link rel="stylesheet" href="support/slideo.css" type="text/css" media="screen, projection, print" charset="utf-8">
-	<script src="support/flashembed.min.js" type="text/javascript"></script>
+	<script src="../javascripts/prototype.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../javascripts/flashembed.min.js" type="text/javascript" charset="utf-8"></script>	
+	<script src="../javascripts/slideo.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../javascripts/antioch_manifesto_project.js" type="text/javascript" charset="utf-8"></script>
+	
+	
+	
 	<!--[if IE]>
 	<link rel="stylesheet" href="http://testing.antiochmanifesto.org/wp-content/themes/am/_css/lib/ie.css" type="text/css" media="screen, projection" charset="utf-8" />
 	<![endif]-->
@@ -19,6 +25,14 @@
 	<link rel="stylesheet" href="http://testing.antiochmanifesto.org/wp-content/themes/am/_css/lib/ie6.css" type="text/css" media="screen, projection" charset="utf-8" />
 	<script type="text/javascript" src="http://testing.antiochmanifesto.org/wp-content/themes/am/_js/ie/iepngfix_tilebg.js"></script> 
 	<![endif]-->
+	
+	<script type="text/javascript" charset="utf-8">
+    Event.observe(window, 'dom:loaded', function(){
+        amp = new AntiochManifestoProject();
+        amp.conceptNumber(0);
+        amp.buildSlideoPlayerInside('videoplayer');
+    });
+  </script>
 	
 	<meta name="robots" content="noindex,nofollow">
 <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://testing.antiochmanifesto.org/xmlrpc.php?rsd">
@@ -54,10 +68,10 @@
 
 <div id="videoplayer">
 	<!-- Slideo html starts here -->
-	<div id="slideo_video">Video here</div>
-	<div id="slideo_slides">
-		<img src="../content/slides/concept-0/Slide04.png" alt="Slide02">
-	</div>
+  <!-- <div id="slideo_video">Video here</div>
+  <div id="slideo_slides">
+    <img src="../content/slides/concept-0/Slide04.png" alt="Slide02">
+  </div> -->
 	<!-- End of Slideo Html here -->
 </div>
 
@@ -302,64 +316,4 @@ sdfsdfgskd</p>
 		</div>
 		<div class="clear"></div>
 	</div>
-	<script type="text/javascript" charset="utf-8">
-		 var slideo_api;
-		 slideo_api = flashembed("slideo_video", 	
-			{
-				src:'support/FlowPlayerDark.swf',
-				width: 480, 
-				height: 360
-			},
-
-			{config: {   
-				autoPlay: false,
-				autoBuffering: true,
-				// usePlayOverlay: true,
-				controlBarBackgroundColor: -1,
-				controlsOverVideo: 'locked',
-				controlBarGloss: 'none',
-				showVolumeSlider: false,
-				initialScale: 'fit',
-				showOnLoadBegin: false,
-				// progressBarColor1: 0x333333,
-				progressBarColor1: -1,
-				progressBarColor2: 0x333333,
-				bufferBarColor1: 0xaaaaaa,
-				bufferBarColor2: 0xaaaaaa,
-				// showFullScreenButton: false,
-				showPlayListButtons: false,
-				// showMenu: false,
-				timeDisplayFontColor: 0x444444,
-				// progressBarBorderColor1: 0xaaaaaa,
-				// progressBarBorderColor2: 0xaaaaaa,
-				// videoFile: 'http://blip.tv/file/get/N8inpasadena-Flowers457.flv'
-				// videoFile: '..content/videos/concept-0.mp4'
-				splashImageFile: "file:///Users/brian_anderson/Sites/slideo/content/videos/concept-0.png",
-				videoFile: "file:///Users/brian_anderson/Sites/slideo/content/videos/concept-0.mp4"
-			}}
-		);
-		// console.log(slideo_api);
-		// slideo_api.onPlay = function(clip){
-		// 	console.log("Ready!!!");
-		// }
-		function onFlowPlayerReady(clip) {
-			
-		}
-		onPlay = function (clip) {
-			console.log("playing")
-		}
-		onPause = function(clip){
-			console.log("Paused")
-		}
-		onResume = function(clip){
-			console.log("resumed")
-		}
-		onCuePoint = function(cue_point){
-			console.log(cue_point);
-		}
-
-		onFlowPlayerReady = function(clip){
-			
-		}
-	</script>
 </body></html>

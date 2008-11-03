@@ -29,52 +29,113 @@ var time_code = new Array(  "00:00:00",
 
 
 Slideo = Class.create({
-    internal_config: {
+    config: {
         time_in_seconds:0,
         current_slide: 0,
+        width: 480,
+        height: 360,
         state: "uninitialized",
         slide_div: "slideo_slides",
         video_div: "slideo_video",
+        loading_div: "slideo_loading",
+        loading_content: "<p>Loading...</p>",
+        flow_player_swf: "swf/FlowPlayerDark.swf",
+        slide_url: null,
+        timecode_url: null,  
+        video_url: null,
+        splash_url: null
     },
+    status: {
+      flow_player_ready: false
+    },
+    flow_player: null,
     slides: [],
-    user_config: {},
     container_element: null,
     
     set_state: function(new_state){
         this.log("Setting state to: " + new_state)
-        return this.internal_config.state = new_state;
+        return this.config.state = new_state;
     },
     
     state: function(){
-        return this.internal_config.state;
+        return this.config.state;
     },
     
     initialize: function(el, configuration){
         this.log("Initalizing");
-        if(valueOf(arguments[1]) != undefined ) this.user_config = arguments[1];
+        if(valueOf(arguments[1]) != undefined ) {
+          var tmp_config = $H(this.config).merge($H(arguments[1]));
+          this.config = tmp_config.toObject();
+          // this.config = $H(this.config).merge($H(arguments[1]));
+        }
         this.container_element = $(el);
+        // this.log(this.config.inspect());
         
         this.buildInternalHtmlElements();
+        this.loadFlowPlayer();
         
         this.set_state("initialized");
-        this.log(this.user_config);
+        this.log(this.config);
         return this;
     },
     
     buildInternalHtmlElements: function(){
         this.log('building slideo elements in ' + this.container_element.id);
-        this.video_element = new Element('div', { 'id': this.internal_config.video_div});
-        this.slide_element = new Element('div', { 'id': this.internal_config.slide_div});
+        this.video_element = new Element('div', { 'id': this.config.video_div});
+        this.slide_element = new Element('div', { 'id': this.config.slide_div});
+        this.loading_element = new Element('div', { 'id': this.config.loading_div}).update(this.config.loading_content);
         this.container_element.insert({top: this.video_element});
         this.container_element.insert({bottom: this.slide_element});
+        this.container_element.insert({bottom: this.loading_element});
     },
     
     loadFlowPlayer: function(){
-        
+        this.flow_player = flashembed(this.config.video_div,  
+           { src: this.config.flow_player_swf,
+             width: this.config.width, 
+             height: this.config.height
+           },this.flowPlayerConfig());
+           
+       window.onFlowPlayerReady = function(){
+         console.log('flow player ready!');
+         this.status.flow_player_ready = true;
+       }.bind(this)
+
+       window.onStartBuffering = function(clip){
+        if(this.status.flow_player_ready)
+          console.log("Buffer is ready to play");
+       }.bind(this)
+    },
+    
+    // Responsible for returning a JS Object/Hash
+    // for all of the flow player config
+    flowPlayerConfig: function(){
+      return {
+        config: {   
+           autoPlay: false,
+           autoBuffering: true,
+           controlBarBackgroundColor: -1,
+           controlsOverVideo: 'ease',
+           controlBarGloss: 'none',
+           showVolumeSlider: false,
+           initialScale: 'fit',
+           showOnLoadBegin: false,
+           progressBarColor1: -1,
+           progressBarColor2: 0x333333,
+           bufferBarColor1: 0xaaaaaa,
+           bufferBarColor2: 0xaaaaaa,
+           showFullScreenButton: false,
+           showPlayListButtons: false,
+           timeDisplayFontColor: 0x222222,
+           showMenu: false,   				
+           splashImageFile: this.config.splash_url,
+           videoFile: this.config.video_url
+         }
+      }
     },
     
     log:function(text){
-        console.log(text);
+        // console.log(text);
     },
     
     getSlideForSecond: function(second){
@@ -93,12 +154,12 @@ Slideo = Class.create({
         new Ajax.Request(url, {
           method: 'get',
           onSuccess: function(transport) {
-              console.log("Got timecodes!");
-              console.log(transport.responseText.split("\n"));
+              this.log("Got timecodes!");
+              this.log(transport.responseText.split("\n"));
               this.setSlideTimingsFromArrayOfTimeCodes(transport.responseText.split("\n"));
           }.bind(this),
           onFailure: function(transport){
-              console.log("something wasn't happy!");
+              this.log("something wasn't happy!");
           }
         });
     },
@@ -127,6 +188,8 @@ Slideo = Class.create({
     }
     
     
+    
+    
 });
 
 SlideoSlide = Class.create({
@@ -152,6 +215,23 @@ SlideoSlide = Class.create({
     }
     
 });
+
+
+// function onFlowPlayerReady(clip) {
+//  
+// }
+// onPlay = function (clip) {
+//  console.log("playing")
+// }
+// onPause = function(clip){
+//  console.log("Paused")
+// }
+// onResume = function(clip){
+//  console.log("resumed")
+// }
+// onCuePoint = function(cue_point){
+//  console.log(cue_point);
+// }
 
 // var the_player = new Slideo;
 // the_player.setSlideTimingsFromArrayOfTimeCodes(time_code);

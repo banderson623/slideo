@@ -12,6 +12,14 @@
 	<script src="javascripts/slideo.js" type="text/javascript" charset="utf-8"></script>
 	<script src="javascripts/antioch_manifesto_project.js" type="text/javascript" charset="utf-8"></script>
 	
+	<script type="text/javascript" charset="utf-8">
+    Event.observe(window, 'dom:loaded', function(){
+        amp = new AntiochManifestoProject();
+        amp.conceptNumber(0);
+        amp.buildSlideoPlayerInside('container');
+    });
+  </script>
+	
 	<style type="text/css" media="screen">
 		body {
 			margin:0; padding:0;
@@ -44,81 +52,26 @@
 			width: 480px;
 			height: 360px;	
 		}
+		
+		#slideo_loading {
+		  position:absolute;
+		  top:5px;
+		  left:5px;
+		  background:#111;
+		  color:#999;
+		  padding:3px 10px;
+		  z-index:4;
+		}
+		#slideo_loading * {
+		  padding:0; margin:0;
+	  }
+		
 	</style>
 </head>
 
 <body>
 	<div id="container">
-		<!-- Built dynamically -->
-		<!-- <div id="slideo_video"></div>
-		<div id="slideo_slides">
-			<img src="content/slides/concept-0/Slide02.png" alt="Slide02">
-		</div> -->
 	</div>
-
-
-	<script type="text/javascript" charset="utf-8">
-		 var slideo_api;
-		 slideo_api = flashembed("video", 	
-			{
-				src:'swf/FlowPlayerDark.swf',
-				width: 480, 
-				height: 360
-			},
-
-			{config: {   
-				autoPlay: false,
-				autoBuffering: true,
-				// usePlayOverlay: true,
-				controlBarBackgroundColor: -1,
-				controlsOverVideo: 'locked',
-				controlBarGloss: 'none',
-				showVolumeSlider: false,
-				initialScale: 'fit',
-				showOnLoadBegin: false,
-				// progressBarColor1: 0x333333,
-				progressBarColor1: -1,
-				progressBarColor2: 0x333333,
-				bufferBarColor1: 0xaaaaaa,
-				bufferBarColor2: 0xaaaaaa,
-				// showFullScreenButton: false,
-				showPlayListButtons: false,
-				// showMenu: false,
-				timeDisplayFontColor: 0x444444,
-				// progressBarBorderColor1: 0xaaaaaa,
-				// progressBarBorderColor2: 0xaaaaaa,
-				// videoFile: 'http://blip.tv/file/get/N8inpasadena-Flowers457.flv'
-				// videoFile: '..content/videos/concept-0.mp4'
-				splashImageFile: "file:///Users/brian_anderson/Sites/slideo/content/videos/concept-0.png",
-				videoFile: "file:///Users/brian_anderson/Sites/slideo/content/videos/concept-0.mp4"
-			}}
-		);
-		// console.log(slideo_api);
-		// slideo_api.onPlay = function(clip){
-		// 	console.log("Ready!!!");
-		// }
-		function onFlowPlayerReady(clip) {
-			
-		}
-		onPlay = function (clip) {
-			console.log("playing")
-		}
-		onPause = function(clip){
-			console.log("Paused")
-		}
-		onResume = function(clip){
-			console.log("resumed")
-		}
-		onCuePoint = function(cue_point){
-			console.log(cue_point);
-		}
-
-		onFlowPlayerReady = function(clip){
-			
-		}
-	</script>
-
-
 </body>
 </html>
 
