@@ -10,15 +10,9 @@
 	<script src="javascripts/prototype.js" type="text/javascript" charset="utf-8"></script>
 	<script src="javascripts/flashembed.min.js" type="text/javascript"></script>
 	<script src="javascripts/slideo.js" type="text/javascript" charset="utf-8"></script>
-	<script src="javascripts/antioch_manifesto_project.js" type="text/javascript" charset="utf-8"></script>
+	<script src="javascripts/slideo_amp.js" type="text/javascript" charset="utf-8"></script>
 	
-	<script type="text/javascript" charset="utf-8">
-    Event.observe(window, 'dom:loaded', function(){
-        amp = new AntiochManifestoProject();
-        amp.conceptNumber(0);
-        amp.buildSlideoPlayerInside('container');
-    });
-  </script>
+
 	
 	<style type="text/css" media="screen">
 		body {
@@ -26,7 +20,7 @@
 			background:#111;
 			text-align:center;
 		}
-		#container {
+		#videoplayer {
 			margin:30px auto 0 auto;
 			width:975px;
 			height:370px;
@@ -70,9 +64,23 @@
 </head>
 
 <body>
-	<div id="container">
+	<div id="videoplayer">
 	</div>
 </body>
 </html>
 
 
+<script>
+  // Event.observe(window, 'dom:loaded', function(){
+      amp = new AntiochManifestoProject();
+      amp.conceptNumber(0);
+      amp.buildSlideoPlayerInside('videoplayer');
+      
+      api=flashembed(amp.slideo.config.video_div,  
+                  { src: amp.slideo.config.flow_player_swf,
+                    width: amp.slideo.config.width, 
+                    height: amp.slideo.config.height
+                  },amp.slideo.flowPlayerConfig());
+      
+  // });
+</script>

@@ -6,27 +6,7 @@ slideo_config = {
 
 }
 
-var time_code = new Array(  "00:00:00",
-                            "00:00:54",
-                            "00:03:15",
-                            "00:05:26",
-                            "00:06:15",
-                            "00:06:39",
-                            "00:09:30",
-                            "00:10:24",
-                            "00:11:21",
-                            "00:12:30",
-                            "00:13:15",
-                            "00:17:49",
-                            "00:19:48",
-                            "00:20:24",
-                            "00:20:40",
-                            "00:21:26",
-                            "00:22:01",
-                            "00:23:21",
-                            "00:27:12")
-
-
+var slideo_global_player_object;
 
 Slideo = Class.create({
     config: {
@@ -34,7 +14,6 @@ Slideo = Class.create({
         current_slide: 0,
         width: 480,
         height: 360,
-        state: "uninitialized",
         slide_div: "slideo_slides",
         video_div: "slideo_video",
         loading_div: "slideo_loading",
@@ -45,20 +24,25 @@ Slideo = Class.create({
         video_url: null,
         splash_url: null
     },
+    // Private status state (please don't monkey with)
     status: {
-      flow_player_ready: false
+      flow_player_ready: false,
+      state: "uninitialized",
+      onLoadBeginCalls: 0,
+      time_check_timer: null,
     },
+    
     flow_player: null,
     slides: [],
     container_element: null,
     
     set_state: function(new_state){
         this.log("Setting state to: " + new_state)
-        return this.config.state = new_state;
+        return this.status.state = new_state;
     },
     
     state: function(){
-        return this.config.state;
+        return this.status.state;
     },
     
     initialize: function(el, configuration){
@@ -72,7 +56,8 @@ Slideo = Class.create({
         // this.log(this.config.inspect());
         
         this.buildInternalHtmlElements();
-        this.loadFlowPlayer();
+        // this.loadFlowPlayer();
+        this.installPlayerReadyCallback();
         
         this.set_state("initialized");
         this.log(this.config);
@@ -83,33 +68,24 @@ Slideo = Class.create({
         this.log('building slideo elements in ' + this.container_element.id);
         this.video_element = new Element('div', { 'id': this.config.video_div});
         this.slide_element = new Element('div', { 'id': this.config.slide_div});
-        this.loading_element = new Element('div', { 'id': this.config.loading_div}).update(this.config.loading_content);
+        // this.loading_element = new Element('div', { 'id': this.config.loading_div}).update(this.config.loading_content);
         this.container_element.insert({top: this.video_element});
         this.container_element.insert({bottom: this.slide_element});
-        this.container_element.insert({bottom: this.loading_element});
+        // this.container_element.insert({bottom: this.loading_element});
     },
     
-    loadFlowPlayer: function(){
-        this.flow_player = flashembed(this.config.video_div,  
-           { src: this.config.flow_player_swf,
-             width: this.config.width, 
-             height: this.config.height
-           },this.flowPlayerConfig());
-           
-       window.onFlowPlayerReady = function(){
-         console.log('flow player ready!');
-         this.status.flow_player_ready = true;
-       }.bind(this)
-
-       window.onStartBuffering = function(clip){
-        if(this.status.flow_player_ready)
-          console.log("Buffer is ready to play");
-       }.bind(this)
-    },
+    // loadFlowPlayer: function(){
+    //     slideo_global_player_object = window.flashembed(this.config.video_div,  
+    //        { src: this.config.flow_player_swf,
+    //          width: this.config.width, 
+    //          height: this.config.height
+    //        },this.flowPlayerConfig());
+    // },
     
     // Responsible for returning a JS Object/Hash
     // for all of the flow player config
     flowPlayerConfig: function(){
+      
       return {
         config: {   
            autoPlay: false,
@@ -119,8 +95,8 @@ Slideo = Class.create({
            controlBarGloss: 'none',
            showVolumeSlider: false,
            initialScale: 'fit',
-           showOnLoadBegin: false,
-           progressBarColor1: -1,
+           // showOnLoadBegin: false,
+           // progressBarColor1: -1,
            progressBarColor2: 0x333333,
            bufferBarColor1: 0xaaaaaa,
            bufferBarColor2: 0xaaaaaa,
@@ -135,7 +111,7 @@ Slideo = Class.create({
     },
     
     log:function(text){
-        // console.log(text);
+        console.log(text);
     },
     
     getSlideForSecond: function(second){
@@ -154,8 +130,6 @@ Slideo = Class.create({
         new Ajax.Request(url, {
           method: 'get',
           onSuccess: function(transport) {
-              this.log("Got timecodes!");
-              this.log(transport.responseText.split("\n"));
               this.setSlideTimingsFromArrayOfTimeCodes(transport.responseText.split("\n"));
           }.bind(this),
           onFailure: function(transport){
@@ -164,6 +138,68 @@ Slideo = Class.create({
         });
     },
     
+    installPlayerReadyCallback: function(){    
+      window.onFlowPlayerReady = function(){
+        this.log('flow player ready!');
+        this.status.flow_player_ready = true;
+        this.installCallBacks();
+      }.bind(this)
+    },
+    
+    checkTime: function(){
+      // this.log("Time: " + this.flow_player.getDuration());
+      this.log("Time: " + slideo_global_player_object.getDuration());
+      if(this.status.time_check_timer != null) this.startObservingTime();
+    },
+    
+    installCallBacks: function(){
+      window.onLoadBegin = function(clip){
+         this.log("onLoadBegin");
+         this.status.onLoadBeginCalls++;
+         this.log(this.status.onLoadBeginCalls);
+         // window.alert(this.status.onLoadBeginCalls);
+      }.bind(this)
+      
+      window.onStartBuffering = function(clip){
+         this.log("onStartBuffering");
+      }.bind(this)
+      
+      window.onBufferFlush = function(clip){
+        this.log("onBufferFlush");
+      }
+      
+      window.onBufferFull = function(){
+         this.log("onBufferFull");
+      }.bind(this)
+      
+      window.onResume = window.onPlay = function(clip){ this.playing(clip);}.bind(this);
+      window.onStop = window.onPause = function(clip){ this.stopped(clip);}.bind(this)
+      
+      // this.flow_player.getPercentLoaded()
+    },
+    
+
+    
+    playing: function(clip){
+      this.startObservingTime();
+      this.log("Playing");
+    },
+    
+    stopped: function(clip){
+      this.log("Stopped");
+      this.stopObservingTime();
+      console.log(clip.getTime());
+      
+    },
+    
+    stopObservingTime: function(){
+      clearTimeout(this.status.time_check_timer);
+      this.status.time_check_timer = null;
+    },
+    
+    startObservingTime: function(){
+      // this.status.time_check_timer = setTimeout(function(){this.checkTime();}.bind(this), 250);
+    },
     
     setSlideTimingsFromArrayOfTimeCodes: function(time_code_array){
         this.log("Setting timecodes from array");
@@ -173,7 +209,7 @@ Slideo = Class.create({
             ss.second = this.timeCodeToSeconds(time_code_array[i]);
             ss.slide_number = i + 1; // levi starts at 1 on the files
             if(ss.second != NaN) this.slides.push(ss);
-            this.log("Slide " + ss.slide_number + " starts at " + ss.second);          
+            // this.log("Slide " + ss.slide_number + " starts at " + ss.second);          
         }
     },
     
@@ -215,30 +251,3 @@ SlideoSlide = Class.create({
     }
     
 });
-
-
-// function onFlowPlayerReady(clip) {
-//  
-// }
-// onPlay = function (clip) {
-//  console.log("playing")
-// }
-// onPause = function(clip){
-//  console.log("Paused")
-// }
-// onResume = function(clip){
-//  console.log("resumed")
-// }
-// onCuePoint = function(cue_point){
-//  console.log(cue_point);
-// }
-
-// var the_player = new Slideo;
-// the_player.setSlideTimingsFromArrayOfTimeCodes(time_code);
-
-// console.log(the_player.slides[0].fileName());
-// console.log(the_player.slides[12].fileName());
-// 
-// console.log(" 0 " + the_player.getSlideForSecond(0));
-// console.log(" 1 " + the_player.getSlideForSecond(1));
-// console.log("60 " + the_player.getSlideForSecond(60));
