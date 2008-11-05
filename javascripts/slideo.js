@@ -131,6 +131,7 @@ Slideo = Class.create({
     
     hideMessage: function(){
       this.message_element.hide();
+      this.message_element.update('');
     },
     
     log:function(text){
@@ -170,7 +171,7 @@ Slideo = Class.create({
     showLoading: function(){
       var percent_load = (this.flow_player.getPercentLoaded() / this.config.experimental_load_percent_before_playback_can_start) * 100;
       if (percent_load >= 100) { percent_load = 100; }
-      if (percent_load < 0) { percent_load = 0; }
+      if (percent_load < 0 || percent_load == NaN ) { percent_load = 0; }
       // 
       // console.log("loading..." + percent_load);
       // 
@@ -209,12 +210,14 @@ Slideo = Class.create({
       this.status.playing = true;
       this.startObservingTime();
       this.log("Playing");
+      this.hideMessage();
     },
     
     stopped: function(clip){
       this.log("Stopped");
       this.status.playing = false
-      this.stopObservingTime();      
+      this.stopObservingTime();
+      this.message("Paused");   
     },
     
     scrubbing: function(){
