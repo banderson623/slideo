@@ -162,7 +162,7 @@ Slideo = Class.create({
       this.log("Playback can start now (loaded: " + this.flow_player.getPercentLoaded() +  "%) ");
       this.hideMessage();
       this.video_splash_element.hide();
-      this.flow_player.DoPlay();
+      // this.flow_player.DoPlay();
       this.log(this.flow_player.getTime());
       this.status.playback_can_start = true;
       this.log("It took " + ((new Date()).getTime() - this.status.started_loading_at)/1000 + " seconds to load before it could play");
