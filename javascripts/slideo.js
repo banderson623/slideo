@@ -2,8 +2,6 @@
 // 2008 - A little favor for BILD friends (Levi and Nate)
 // For: http://testing.antiochmanifesto.org
 
-var slideo_global_player_object;
-
 Slideo = Class.create({
   
     // User configurable for slideo, these should be set as the second argument in the constructor
@@ -118,7 +116,7 @@ Slideo = Class.create({
            initialVolumePercentage: 100,
            timeDisplayFontColor: 0x999999,
            showMenu: false,   				
-           // splashImageFile: this.config.splash_url,
+           splashImageFile: this.config.splash_url,
            videoFile: this.config.video_url
          }
       }
@@ -258,8 +256,6 @@ Slideo = Class.create({
             this.status.next_slide_at = this.slides[this.status.slide_index+1].second;
           }
           this.log("next slide: " + this.status.next_slide_at)
-        } else {
-          this.log("NO SLIDE ADVANCED: Got " + new_index + " back from getSlideIndexForSecond with a time value of: " + time);
         }
       }
     },
@@ -318,7 +314,8 @@ Slideo = Class.create({
                 return i
             }
         }
-        return -1;
+        this.log("NO INDEX TO RETURN: SlideIndexForSecond with a time value of: " + second + " (returning 0)");
+        return 0;
     },
     
     setSlideTimingsFromURL: function(url){
@@ -336,6 +333,10 @@ Slideo = Class.create({
     },
     
     setSlideTimingsFromArrayOfTimeCodes: function(time_code_array){
+        // One of the issues is that our timecode files sometimes start with 00:00:00
+        // Sometimes they don't. I want this to always be there, so install it.
+        time_code_array = this.checkForZeroEntry(time_code_array);
+        
         this.log("Setting timecodes from array");
         for(var i=0; i <= (time_code_array.length - 1); ++i){
             var ss = new SlideoSlide;
@@ -351,6 +352,19 @@ Slideo = Class.create({
 
         this.showSlideAtIndex(0);
         this.cacheSlideAtIndex(1);
+    },
+    
+    checkForZeroEntry: function(tc_array){
+      // One of the issues is that our timecode files sometimes start with 00:00:00
+      // Sometimes they don't. I want this to always be there, so install it.
+      if(this.timeCodeToSeconds(tc_array[0]) > 0){
+        this.log("Added zero entry to time_code");
+        tc_array.reverse();
+        tc_array.push("00:00:00");
+        tc_array.reverse();
+      }
+      
+      return tc_array;
     },
     
     timeCodeToSeconds: function(timecode_string){
