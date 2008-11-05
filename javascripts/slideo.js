@@ -14,11 +14,13 @@ Slideo = Class.create({
         current_slide: 0,
         width: 480,
         height: 360,
+        show_slide_progress_bar: true,
         slide_div: "slideo_slides",
         slide_img: "slideo_slides_img",
+        slide_cache_img: "slideo_cache_img",
         video_div: "slideo_video",
         loading_div: "slideo_loading",
-        loading_content: "<p>Loading...</p>",
+        loading_content: "<p>Loading</p>",
         flow_player_swf: "swf/FlowPlayerDark.swf",
         slide_url: null,
         timecode_url: null,  
@@ -36,6 +38,10 @@ Slideo = Class.create({
       slide_index: -1,
       max_slides: -1,
       next_slide_at: 0,
+      current_time: -1,
+      cached_next_slide: false,
+      working_cache: null,
+      playback_can_start: false
     },
     
     flow_player: null,
@@ -62,9 +68,7 @@ Slideo = Class.create({
         this.buildInternalHtmlElements();
         this.loadFlowPlayer();
         this.installPlayerReadyCallback();
-        // this.showSlideAtIndex(0);
         this.set_state("initialized");
-        // this.log(this.config);
         return this;
     },
     
@@ -73,11 +77,20 @@ Slideo = Class.create({
         this.video_element = new Element('div', { 'id': this.config.video_div});
         this.slide_element = new Element('div', { 'id': this.config.slide_div});
         this.slide_image_element = new Element('img', { 'id': this.config.slide_img});
-        // this.loading_element = new Element('div', { 'id': this.config.loading_div}).update(this.config.loading_content);
+        this.slide_cache_img_element = new Element('img', { 'id': this.config.slide_cache_img, "style":"display:none;"});
+        this.loading_element = new Element('div', { 'id': this.config.loading_div}).update(this.config.loading_content);
+
         this.container_element.insert({top: this.video_element});
         this.container_element.insert({bottom: this.slide_element});
         this.slide_element.insert(this.slide_image_element);
-        // this.container_element.insert({bottom: this.loading_element});
+        this.slide_element.insert(this.slide_cache_img_element);
+        
+        this.container_element.insert({bottom: this.loading_element});
+        
+        
+        if(this.config.show_slide_progress_bar){
+          
+        }
     },
     
     loadFlowPlayer: function(){
@@ -97,20 +110,17 @@ Slideo = Class.create({
            autoPlay: false,
            autoBuffering: true,
            controlBarBackgroundColor: -1,
-           // controlBarBackgroundColor: 0x000000,
            controlsOverVideo: 'ease',
            controlBarGloss: 'none',
            showVolumeSlider: false,
            initialScale: 'fit',
            showOnLoadBegin: false,
-           // progressBarColor1: -1,
            progressBarColor2: 0x333333,
            bufferBarColor1: 0xaaaaaa,
            bufferBarColor2: 0xaaaaaa,
            showFullScreenButton: false,
            showPlayListButtons: false,
            initialVolumePercentage: 100,
-           // timeDisplayFontColor: 0x222222,
            timeDisplayFontColor: 0x999999,
            showMenu: false,   				
            splashImageFile: this.config.splash_url,
@@ -132,17 +142,26 @@ Slideo = Class.create({
       }.bind(this)
     },
     
+    // 
+    canStartPlayback: function(){
+      this.log("Playback can start now (loaded: " + this.flow_player.getPercentLoaded() +  "%) ");
+      this.loading_element.hide();
+      this.flow_player.DoPlay();
+      this.status.playback_can_start = true;
+    },
     
     installCallBacks: function(){
       window.onLoadBegin = function(clip){
-         this.log("onLoadBegin");
+         // this.log("onLoadBegin");
          this.status.onLoadBeginCalls++;
-         this.log(this.status.onLoadBeginCalls);
+         // this.log(this.status.onLoadBeginCalls);
          // window.alert(this.status.onLoadBeginCalls);
+         if(this.status.onLoadBeginCalls >= 4 && this.status.playback_can_start == false) this.canStartPlayback();
+         
       }.bind(this);
       
       window.onStartBuffering = function(clip){
-         this.log("onStartBuffering");
+         // this.log("onStartBuffering");
          this.scrubbing();
       }.bind(this);
       
@@ -157,11 +176,7 @@ Slideo = Class.create({
       window.onResume = window.onPlay = function(clip){ this.playing(clip);}.bind(this);
       window.onStop = window.onPause = function(clip){ this.stopped(clip);}.bind(this)
       
-      // this.flow_player.getPercentLoaded()
-    },
-    
-    // Call back hooks
-    
+    },    
     playing: function(clip){
       this.status.playing = true;
       this.startObservingTime();
@@ -176,7 +191,7 @@ Slideo = Class.create({
     
     scrubbing: function(){
       this.status.next_slide_at = -1;
-      this.log("Scrubbing");
+      // this.log("Scrubbing");
     },
     
     stopObservingTime: function(){
@@ -190,12 +205,19 @@ Slideo = Class.create({
     
     checkTime: function(){
       var time = this.flow_player.getTime();
+      this.status.current_time = time;
       this.setSlideForTime(time);
       this.startObservingTime();
+      this.tick();
+    },
+    
+    tick: function(){
+      // this.log("Time left on this slide: " + this.secondsRemaingForCurrentSlide());
+      // this.log("loaded % " + this.flow_player.getPercentLoaded());
     },
     
     setSlideForTime: function(time){
-      this.log("Checking if I can set a new slide: next slide at: " + this.status.next_slide_at + " seconds.");
+      // this.log("Checking if I can set a new slide: next slide at: " + this.status.next_slide_at + " seconds.");
       if(time > this.status.next_slide_at){
         this.slide_index = this.getSlideIndexForSecond(time)
         // this.log("Switching to slide " + this.slides[this.slide_index].slide_number);
@@ -206,9 +228,9 @@ Slideo = Class.create({
         this.log("next slide: " + this.status.next_slide_at)
       }
     },
-    
+      
     nextSlide: function(){
-      if(this.status.max_index > this.slide_index) {
+      if(!this.atLastSlide()) {
         return this.slides[this.status.slide_index + 1]
       }else{
         return this.thisSlide();
@@ -219,14 +241,40 @@ Slideo = Class.create({
       return this.slides[this.status.slide_index]
     },
     
+    atLastSlide:function(){
+      return (this.slide_index >= this.status.max_index)
+    },
+    
     showSlideAtIndex: function(slide_index){
       var slide_url = this.config.slide_url + "/" + this.slides[slide_index].fileName();
-      
       this.slide_image_element.src = slide_url;
-      
+      this.cacheSlideAtIndex(slide_index + 1);
       this.log("loading slide; " + slide_url);
     },
 
+    cacheSlideAtIndex: function(index){
+      clearTimeout(this.status.working_cache);
+      if(index <= this.status.max_index){
+        this.status.working_cache = setTimeout(function(){
+          this.log('cached slide ' + this.slides[index].slide_number);
+          this.slide_cache_img_element.src = this.config.slide_url + "/" + this.slides[index].fileName();
+        }.bind(this), 1000);
+      }
+    },
+    
+    updateSlideProgressBar: function(){
+      if(this.config.show_slide_progress_bar){
+      }
+    },
+    
+    secondsRemaingForCurrentSlide: function(){
+      if(this.status.next_slide_at >= 0){
+        return this.status.next_slide_at - this.status.current_time;
+      } else {
+        return -1
+      }
+    },
+    
     
     getSlideIndexForSecond: function(second){
         for(var i = (this.slides.length - 1); i >= 0; i--){            
@@ -263,7 +311,9 @@ Slideo = Class.create({
         this.status.max_slides = i - 1;
         this.status.max_index = i;
         this.log("Slide count: " + i);
+
         this.showSlideAtIndex(0);
+        this.cacheSlideAtIndex(1);
     },
     
     timeCodeToSeconds: function(timecode_string){
