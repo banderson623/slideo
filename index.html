@@ -94,7 +94,7 @@
 
 
 <script>
-  Event.observe(window, 'dom:loaded', function(){
+  $(document).observe('dom:loaded', function() {
       amp = new AntiochManifestoProject();
       amp.conceptNumber(0);
       amp.buildSlideoPlayerInside('videoplayer');

@@ -24,6 +24,7 @@ Slideo = Class.create({
         timecode_url: null,  
         video_url: null,
         splash_url: null,
+        pause_message_class: 'paused',
         cache_next_image_after: 8.0, // delay in seconds
         experimental_load_percent_before_playback_can_start: 0
     },
@@ -54,7 +55,8 @@ Slideo = Class.create({
       
     initialize: function(el, configuration){
         this.log("Initalizing");
-        if(valueOf(arguments[1]) != undefined ) {
+        // if(valueOf(arguments[1]) != undefined ) {
+        if(arguments.length == 2){
           var tmp_config = $H(this.config).merge($H(arguments[1]));
           this.config = tmp_config.toObject();
         }
@@ -144,14 +146,14 @@ Slideo = Class.create({
         this.log('flow player ready!');
         this.status.flow_player_ready = true;
         this.installCallBacks();
+        this.showLoading()
       }.bind(this)
       
 
       var splash_url = this.config.splash_url
-      console.log(" displaying splash: " + splash_url);
+      this.log(" displaying splash: " + splash_url);
       this.video_splash_element.src = splash_url;
       // this.video_splash_element.hide();
-      this.showLoading()
       
     },
     
@@ -215,12 +217,11 @@ Slideo = Class.create({
       this.log("Stopped");
       this.status.playing = false
       this.stopObservingTime();
-      this.message("Paused");   
+      this.message('<p class="'+ this.config.pause_message_class +'">paused</p>');   
     },
     
     scrubbing: function(){
       this.status.next_slide_at = -1;
-      // this.log("Scrubbing");
     },
     
     stopObservingTime: function(){
