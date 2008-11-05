@@ -28,11 +28,11 @@
 			background:#222;
 			position:relative;
 		}
-		#slideo_video, #slideo_slides{
+		#slideo_video, #slideo_slides, #slideo_video_splash{
 			color:#555;
 			width: 480px;
 			height: 360px;
-			background:#333;
+			background:#111;
 			position:absolute;
 			top:5px;
 			left:5px;
@@ -41,14 +41,19 @@
 			overflow: hidden;
 			left: auto;
 			right:5px;
-		}
-				
-		#slideo_slides img{
-			width: 480px;
-			height: 360px;	
+			background: #333 url('images/slide_background.gif') no-repeat  center center;
 		}
 		
-		#slideo_loading {
+		#slideo_video_splash{
+		  z-index:3;
+		}
+		
+		#slideo_slides img{
+			width: 480px;
+			height: 360px;
+		}
+		
+		#slideo_message {
 		  position:absolute;
 		  font-size:2em;
 		  font-family: Helvetica, Arial, "MS Trebuchet", sans-serif;
@@ -58,11 +63,25 @@
 		  padding:3px 10px;
 		  z-index:4;
       opacity:0.75;
-		  padding-right:45px;
-		  background: #000 url('images/black_spinner_b.gif') right center no-repeat;
+      background:#000;
 		}
-		#slideo_loading * {
-		  padding:0; margin:0;
+		
+		#slideo_message p {
+		  padding:0;
+		  margin:0;
+		  background:#000;
+		}
+		#slideo_message p.loading {
+/*      padding-right:45px;*/
+/*      background: #000 url('images/black_spinner_b.gif') right center no-repeat;*/
+	  }
+	  
+	  #slideo_message p.error {
+	    color:#995958;
+	  }
+		
+		#slideo_message p.log {
+      
 	  }
 		
 	</style>
@@ -79,17 +98,5 @@
       amp = new AntiochManifestoProject();
       amp.conceptNumber(0);
       amp.buildSlideoPlayerInside('videoplayer');
-      
-      //  api = flashembed("videoplayer", 
-      //  {
-      //     // src:'swf/FlowPlayerDark.swf',
-      //     src: 'swf/FlowPlayerDark.swf',
-      //    width: 400, 
-      //    height: 290
-      //  },{config: {   
-      //     videoFile: 'http://blip.tv/file/get/N8inpasadena-Flowers457.flv'
-      //  }}
-      // 
-      // );
     });
 </script>
