@@ -249,13 +249,18 @@ Slideo = Class.create({
     
     setSlideForTime: function(time){
       if(time > this.status.next_slide_at){
-        this.status.slide_index = this.getSlideIndexForSecond(time)
-        this.log("Switching to slide " + this.slides[this.status.slide_index].slide_number);
-        this.showSlideAtIndex(this.status.slide_index);
-        if(this.status.max_index > this.status.slide_index) {
-          this.status.next_slide_at = this.slides[this.status.slide_index+1].second;
+        var new_index = this.getSlideIndexForSecond(time)
+        if(new_index >= 0) {
+          this.status.slide_index = new_index;
+          this.log("Switching to slide " + this.slides[this.status.slide_index].slide_number);
+          this.showSlideAtIndex(this.status.slide_index);
+          if(this.status.max_index > this.status.slide_index) {
+            this.status.next_slide_at = this.slides[this.status.slide_index+1].second;
+          }
+          this.log("next slide: " + this.status.next_slide_at)
+        } else {
+          this.log("NO SLIDE ADVANCED: Got " + new_index + " back from getSlideIndexForSecond with a time value of: " + time);
         }
-        this.log("next slide: " + this.status.next_slide_at)
       }
     },
       
@@ -284,13 +289,13 @@ Slideo = Class.create({
     },
 
     cacheSlideAtIndex: function(index){
-      clearTimeout(this.status.working_cache);
-      if(index <= this.status.max_index){
-        this.status.working_cache = setTimeout(function(){
-          this.log('cached slide ' + this.slides[index].slide_number);
-          this.slide_cache_img_element.src = this.config.slide_url + "/" + this.slides[index].fileName();
-        }.bind(this), (this.config.cache_next_image_after * 1000));
-      }
+      // clearTimeout(this.status.working_cache);
+      // if(index <= this.status.max_index){
+      //   this.status.working_cache = setTimeout(function(){
+      //     this.log('cached slide ' + this.slides[index].slide_number);
+      //     this.slide_cache_img_element.src = this.config.slide_url + "/" + this.slides[index].fileName();
+      //   }.bind(this), (this.config.cache_next_image_after * 1000));
+      // }
     },
     
     updateSlideProgressBar: function(){
