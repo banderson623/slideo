@@ -169,12 +169,13 @@ Slideo = Class.create({
     },
     
     showLoading: function(){
+      this.message(this.config.loading_content);
+      
       if(this.config.experimental_load_percent_before_playback_can_start > 0){
         var percent_load = (this.flow_player.getPercentLoaded() / this.config.experimental_load_percent_before_playback_can_start) * 100;
         if (percent_load >= 100) { percent_load = 100; }
         if (percent_load < 0 || percent_load == NaN ) { percent_load = 0; }
 
-        this.message(this.config.loading_content);
         try{ this.message_element.down('p').insert({bottom: " (" + Math.round(percent_load) + "%)"});}
         catch(err) {}
 
