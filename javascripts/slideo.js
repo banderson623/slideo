@@ -249,11 +249,11 @@ Slideo = Class.create({
     
     setSlideForTime: function(time){
       if(time > this.status.next_slide_at){
-        this.slide_index = this.getSlideIndexForSecond(time)
-        this.log("Switching to slide " + this.slides[this.slide_index].slide_number);
-        this.showSlideAtIndex(this.slide_index);
-        if(this.status.max_index > this.slide_index) {
-          this.status.next_slide_at = this.slides[this.slide_index+1].second;
+        this.status.slide_index = this.getSlideIndexForSecond(time)
+        this.log("Switching to slide " + this.slides[this.status.slide_index].slide_number);
+        this.showSlideAtIndex(this.status.slide_index);
+        if(this.status.max_index > this.status.slide_index) {
+          this.status.next_slide_at = this.slides[this.status.slide_index+1].second;
         }
         this.log("next slide: " + this.status.next_slide_at)
       }
