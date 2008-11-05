@@ -27,7 +27,7 @@ Slideo = Class.create({
         video_url: null,
         splash_url: null,
         cache_next_image_after: 8.0, // delay in seconds
-        experimental_load_percent_before_playback_can_start: 1.1
+        experimental_load_percent_before_playback_can_start: 0
     },
     
     
@@ -169,22 +169,21 @@ Slideo = Class.create({
     },
     
     showLoading: function(){
-      var percent_load = (this.flow_player.getPercentLoaded() / this.config.experimental_load_percent_before_playback_can_start) * 100;
-      if (percent_load >= 100) { percent_load = 100; }
-      if (percent_load < 0 || percent_load == NaN ) { percent_load = 0; }
-      // 
-      // console.log("loading..." + percent_load);
-      // 
-      this.message(this.config.loading_content);
-      try{ this.message_element.down('p').insert({bottom: " (" + Math.round(percent_load) + "%)"});}
-      catch(err) {}
-      // 
-      if(!this.status.playback_can_start){
-        this.status.show_loading_timer = setTimeout(function(){this.showLoading();}.bind(this), 250);
-      } else {
-        this.hideMessage();
+      if(this.config.experimental_load_percent_before_playback_can_start > 0){
+        var percent_load = (this.flow_player.getPercentLoaded() / this.config.experimental_load_percent_before_playback_can_start) * 100;
+        if (percent_load >= 100) { percent_load = 100; }
+        if (percent_load < 0 || percent_load == NaN ) { percent_load = 0; }
+
+        this.message(this.config.loading_content);
+        try{ this.message_element.down('p').insert({bottom: " (" + Math.round(percent_load) + "%)"});}
+        catch(err) {}
+
+        if(!this.status.playback_can_start){
+          this.status.show_loading_timer = setTimeout(function(){this.showLoading();}.bind(this), 250);
+        } else {
+          this.hideMessage();
+        }
       }
-        
     },
     
     installCallBacks: function(){
