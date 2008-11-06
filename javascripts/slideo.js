@@ -46,7 +46,8 @@ Slideo = Class.create({
       cached_next_slide: false,
       working_cache: null,
       playback_can_start: false,
-      started_loading_at: 0
+      started_loading_at: 0,
+      message_timer: false
     },
     
     flow_player: null,
@@ -93,6 +94,18 @@ Slideo = Class.create({
         this.slide_image_element.observe('error', function(){this.slideLoadError();}.bind(this));
         this.slide_image_element.observe('alert', function(){this.slideLoadError();}.bind(this));
         
+        
+        //What to do if we get a load error in the video element
+        this.video_element.observe('error', function(){this.videoLoadError();}.bind(this));
+        this.video_element.observe('alert', function(){this.videoLoadError();}.bind(this));
+        
+        
+    },
+    
+    videoLoadError: function(){
+      clearTimeout(this.status.show_loading_timer);
+      this.log("ERROR: Could not show video");
+      this.message("Video not yet available");
     },
     
     loadFlowPlayer: function(){
@@ -131,7 +144,14 @@ Slideo = Class.create({
       }
     },
     
+    // Shows a message for 5 seconds
+    messageForFiveSeconds: function(text_for_message){
+      this.message(text_for_message);
+      this.status.message_timer = setTimeout(function(){this.hideMessage();}.bind(this), 5000);
+    },
+      
     message: function(text_for_message){
+      clearTimeout(this.status.message_timer);
       this.log("Showing message: " + text_for_message)
       this.message_element.update(text_for_message).show();
     },
@@ -181,7 +201,7 @@ Slideo = Class.create({
       if(this.config.experimental_load_percent_before_playback_can_start > 0){
         var percent_load = (this.flow_player.getPercentLoaded() / this.config.experimental_load_percent_before_playback_can_start) * 100;
         if (percent_load >= 100) { percent_load = 100; }
-        if (percent_load < 0 || percent_load == NaN ) { percent_load = 0; }
+        if (percent_load < 0 || isNaN(percent_load)) { percent_load = 0; }
 
         try{ this.message_element.down('p').insert({bottom: " (" + Math.round(percent_load) + "%)"});}
         catch(err) {}
@@ -207,7 +227,7 @@ Slideo = Class.create({
       window.onStartBuffering = function(clip){ this.scrubbing(); }.bind(this);
       window.onBufferFlush =    function(clip){ this.log("onBufferFlush"); }.bind(this);
       window.onBufferFull =     function(){ this.log("onBufferFull"); }.bind(this);
-      window.onStreamNotFound = function(){ this.message(this.config.video_unavailable); }.bind(this);
+      window.onStreamNotFound = function(){ this.videoLoadError(); }.bind(this);
       
       window.onResume = window.onPlay = function(clip){ this.playing(clip); }.bind(this);
       window.onStop = window.onPause =  function(clip){ this.stopped(clip); }.bind(this)
@@ -285,7 +305,8 @@ Slideo = Class.create({
     },
     
     slideLoadError: function(){
-      this.log("Couldn't load: " + this.slide_image_element.src);
+      this.log("ERROR: Couldn't load: " + this.slide_image_element.src);
+      this.messageForFiveSeconds("Could not load slide");
       this.slide_image_element.hide();
     },
     
@@ -356,7 +377,7 @@ Slideo = Class.create({
             ss.time_code = time_code_array[i];
             ss.second = this.timeCodeToSeconds(time_code_array[i]);
             ss.slide_number = i + 1; // levi starts at 1 on the files
-            if(ss.second != NaN) this.slides.push(ss);
+            if(ss.second != Number.NaN) this.slides.push(ss);
             // this.log("Slide " + ss.slide_number + " starts at " + ss.second);          
         }
         this.status.max_slides = i - 1;
