@@ -1,3 +1,3 @@
 h1. Slideo
 
-"Synchronizing Slides and Video with Javascript and a Flash"
+"Synchronizing Slides and Video with Javascript and Flash"
