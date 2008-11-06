@@ -72,7 +72,9 @@ Slideo = Class.create({
         this.log('building slideo elements in ' + this.container_element.id);
         this.video_element = new Element('div', { 'id': this.config.video_div});
         this.slide_element = new Element('div', { 'id': this.config.slide_div});
-        this.video_splash_element = new Element('img', { 'id': this.config.video_splash_div});
+        this.video_splash_element = new Element('img', { 'id': this.config.video_splash_div}).hide();
+        this.video_splash_element.observe('load',function(){this.video_splash_element.show();}.bind(this));
+        
         
         this.slide_image_element = new Element('img', { 'id': this.config.slide_img}).hide();
         this.slide_cache_img_element = new Element('img', { 'id': this.config.slide_cache_img, "style":"display:none;"});
@@ -86,6 +88,11 @@ Slideo = Class.create({
         this.slide_element.insert(this.slide_cache_img_element);
         
         this.container_element.insert({bottom: this.message_element});
+        
+        // What to do when a slide doesn't load
+        this.slide_image_element.observe('error', function(){this.slideLoadError();}.bind(this));
+        this.slide_image_element.observe('alert', function(){this.slideLoadError();}.bind(this));
+        
     },
     
     loadFlowPlayer: function(){
@@ -275,6 +282,11 @@ Slideo = Class.create({
     
     atLastSlide:function(){
       return (this.slide_index >= this.status.max_index)
+    },
+    
+    slideLoadError: function(){
+      this.log("Couldn't load: " + this.slide_image_element.src);
+      this.slide_image_element.hide();
     },
     
     showSlideAtIndex: function(slide_index){
