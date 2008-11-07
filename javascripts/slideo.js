@@ -419,6 +419,38 @@ Slideo = Class.create({
     
 });
 
+
+Slideo_SlideTransport = Class.create({
+    //  Responsible for advancing, rewinding and displaying slides
+});
+
+Slideo_SlideLoading = Class.create({
+    // Responsible for loading and building slides and timing
+});
+
+// Responsible for commanding video operations
+Slideo_VideoTransport = Class.create({
+    // Play the video
+    play: function(){
+        
+    },
+    
+    // Pause the video
+    pause: function(){
+        
+    };
+    stop: this.pause; // aliased command
+    
+    // Returns the current time (in seconds)
+    getPlayheadInSeconds: function(){
+        
+    };
+    
+});
+
+Slideo_FlowPlayer
+
+
 SlideoSlide = Class.create({
     timecode: "",
     second: 0,
