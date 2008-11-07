@@ -56,14 +56,13 @@ Slideo = Class.create({
       
     initialize: function(el, configuration){
         this.log("Initalizing");
-        // if(valueOf(arguments[1]) != undefined ) {
         if(arguments.length == 2){
           var tmp_config = $H(this.config).merge($H(arguments[1]));
           this.config = tmp_config.toObject();
         }
         this.container_element = $(el);
-        
         this.buildInternalHtmlElements();
+        if(this.config.timecode_url != null)    this.setSlideTimingsFromURL(this.config.timecode_url);
         this.loadFlowPlayer();
         this.installPlayerReadyCallback();
         return this;
@@ -262,6 +261,9 @@ Slideo = Class.create({
     
     checkTime: function(){
       var time = this.flow_player.getTime();
+      if(time == undefined){
+          this.log("ERROR: There is something wrong with your local swf permissions.");
+      }
       this.status.current_time = time;
       this.setSlideForTime(time);
       this.startObservingTime();
