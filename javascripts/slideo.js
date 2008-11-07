@@ -26,6 +26,7 @@ Slideo = Class.create({
         splash_url: null,
         pause_message_class: 'paused',
         cache_next_image_after: 8.0, // delay in seconds
+        tick_speed: 0.25, // tick speed in seconds (while doing playback)
         experimental_load_percent_before_playback_can_start: 0
     },
     
@@ -206,7 +207,7 @@ Slideo = Class.create({
         catch(err) {}
 
         if(!this.status.playback_can_start){
-          this.status.show_loading_timer = setTimeout(function(){this.showLoading();}.bind(this), 250);
+          this.status.show_loading_timer = setTimeout(function(){this.showLoading();}.bind(this), (this.config.tick_speed * 1000));
         } else {
           this.hideMessage();
         }
