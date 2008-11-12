@@ -422,6 +422,7 @@ Slideo = Class.create({
 
 Slideo_SlideTransport = Class.create({
     //  Responsible for advancing, rewinding and displaying slides
+    // Some useless comment
 });
 
 Slideo_SlideLoading = Class.create({
