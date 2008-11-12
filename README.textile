@@ -1,0 +1,8 @@
+h1. Slideo
+
+"Synchronizing Slides and Video with Javascript and Flash"
+
+
+h2. Confession
+
+Its unfortunate that we named it Slideo. Its real name is *Awesomeness*
