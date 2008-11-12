@@ -426,6 +426,7 @@ Slideo_SlideTransport = Class.create({
 
 Slideo_SlideLoading = Class.create({
     // Responsible for loading and building slides and timing
+    // another comment somewhere else
 });
 
 // Responsible for commanding video operations
